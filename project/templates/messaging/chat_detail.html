@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}محادثة{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="wa-chat-shell">
+        <div class="wa-chat-header">
+            <div class="d-flex align-items-center gap-2">
+                <a href="{% url 'messaging:chat_list' %}" class="wa-icon-btn" aria-label="رجوع">
+                    <i class="bi bi-arrow-right"></i>
+                </a>
+                {% if chat_partner and chat_partner.profile.avatar %}
+                    <img class="nav-avatar" src="{{ chat_partner.profile.avatar.url }}" alt="{{ chat_title }}">
+                {% else %}
+                    <span class="nav-avatar nav-avatar-fallback">{{ chat_title|first }}</span>
+                {% endif %}
+                <div>
+                    <div class="wa-title">{{ chat_title }}</div>
+                    <div class="wa-subtitle">{{ chat_subtitle }}</div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="wa-icon-btn" id="wa-scroll-bottom" aria-label="آخر الرسائل">
+                    <i class="bi bi-chevron-double-down"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="wa-chat-body" id="chatBox">
+            {% for msg in chat_messages %}
+            <div class="wa-msg-row {% if msg.sender == user %}mine{% else %}theirs{% endif %}" data-msg-id="{{ msg.id }}">
+                <div class="wa-bubble {% if msg.sender == user %}mine{% else %}theirs{% endif %}">
+                    {% if msg.content %}<div>{{ msg.content|linebreaksbr }}</div>{% endif %}
+                    {% if msg.image %}
+                        <img class="wa-image" src="{{ msg.image.url }}" alt="صورة">
+                    {% endif %}
+                    <div class="wa-meta">
+                        {% if msg.sender != user %}
+                            <span class="wa-sender">{{ msg.sender.full_name }}</span>
+                        {% endif %}
+                        <span>{{ msg.created_at|date:"H:i" }}</span>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center text-muted py-4">ابدأ المحادثة بإرسال رسالة.</div>
+            {% endfor %}
+        </div>
+
+        <div class="wa-chat-footer">
+            <form method="post" enctype="multipart/form-data" class="wa-composer" id="chatForm">
+                {% csrf_token %}
+                <label class="wa-icon-btn" for="chat-image-input" title="إرفاق صورة">
+                    <i class="bi bi-paperclip"></i>
+                </label>
+                {{ form.image }}
+                {{ form.content }}
+                <button type="submit" class="btn btn-primary wa-send-btn">
+                    <i class="bi bi-send"></i>
+                </button>
+            </form>
+            {% if form.errors %}
+                <div class="text-danger small mt-2">{{ form.errors }}</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const chatBox = document.getElementById('chatBox');
+    const scrollBtn = document.getElementById('wa-scroll-bottom');
+    const pollUrl = "{% url 'messaging:chat_poll' conversation.pk %}";
+
+    function scrollToBottom() {
+        if (!chatBox) return;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function lastMsgId() {
+        const rows = chatBox?.querySelectorAll('[data-msg-id]');
+        if (!rows || !rows.length) return 0;
+        return parseInt(rows[rows.length - 1].getAttribute('data-msg-id') || '0', 10);
+    }
+
+    function escapeHtml(s) {
+        return (s || '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+    }
+
+    async function poll() {
+        try {
+            const id = lastMsgId();
+            const res = await fetch(pollUrl + '?last_id=' + id, {headers: {'X-Requested-With': 'XMLHttpRequest'}});
+            if (!res.ok) return;
+            const data = await res.json();
+            if (!data.messages || !data.messages.length) return;
+
+            const wasNearBottom = (chatBox.scrollHeight - chatBox.scrollTop - chatBox.clientHeight) < 140;
+
+            for (const m of data.messages) {
+                const row = document.createElement('div');
+                row.className = 'wa-msg-row ' + (m.is_mine ? 'mine' : 'theirs');
+                row.setAttribute('data-msg-id', m.id);
+                row.innerHTML = `
+                    <div class="wa-bubble ${m.is_mine ? 'mine' : 'theirs'}">
+                        ${m.content ? `<div>${escapeHtml(m.content).replaceAll('\\n','<br>')}</div>` : ``}
+                        ${m.image ? `<img class="wa-image" src="${m.image}" alt="صورة">` : ``}
+                        <div class="wa-meta">
+                            ${!m.is_mine ? `<span class="wa-sender">${escapeHtml(m.sender)}</span>` : ``}
+                            <span>${escapeHtml(m.time)}</span>
+                        </div>
+                    </div>
+                `;
+                chatBox.appendChild(row);
+            }
+
+            if (wasNearBottom) scrollToBottom();
+        } catch (e) {}
+    }
+
+    if (scrollBtn) scrollBtn.addEventListener('click', scrollToBottom);
+    scrollToBottom();
+    setInterval(poll, 2500);
+</script>
+{% endblock %}

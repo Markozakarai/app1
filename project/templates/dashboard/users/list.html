@@ -1,0 +1,29 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}المستخدمون{% endblock %}
+{% block content %}
+<h2 class="fw-bold mb-4">إدارة المستخدمين</h2>
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>الاسم</th><th>البريد</th><th>الهاتف</th><th>الحالة</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+            <tbody>
+                {% for u in users %}
+                <tr>
+                    <td>{{ u.full_name }}</td>
+                    <td>{{ u.email }}</td>
+                    <td>{{ u.phone }}</td>
+                    <td>{% if u.is_active_account %}<span class="badge bg-success">مفعّل</span>{% else %}<span class="badge bg-danger">معطّل</span>{% endif %}</td>
+                    <td>{{ u.date_joined|date:"d/m/Y" }}</td>
+                    <td>
+                        <a href="{% url 'dashboard:user_toggle' u.pk %}" class="btn btn-sm btn-outline-warning">{% if u.is_active_account %}تعطيل{% else %}تفعيل{% endif %}</a>
+                        {% if u != user and not u.is_superuser %}
+                        <a href="{% url 'dashboard:user_delete' u.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('هل أنت متأكد؟')">حذف</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}الاشتراكات{% endblock %}
+{% block content %}
+<h2 class="fw-bold mb-4">إدارة الاشتراكات</h2>
+<div class="mb-3">
+    <a href="{% url 'dashboard:subscriptions_list' %}" class="btn btn-sm {% if not current_status %}btn-primary{% else %}btn-outline-primary{% endif %}">الكل</a>
+    <a href="?status=pending" class="btn btn-sm {% if current_status == 'pending' %}btn-warning{% else %}btn-outline-warning{% endif %}">قيد المراجعة</a>
+    <a href="?status=approved" class="btn btn-sm {% if current_status == 'approved' %}btn-success{% else %}btn-outline-success{% endif %}">مفعّل</a>
+    <a href="?status=rejected" class="btn btn-sm {% if current_status == 'rejected' %}btn-danger{% else %}btn-outline-danger{% endif %}">مرفوض</a>
+</div>
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>الطالب</th><th>الكورس</th><th>الحالة</th><th>إثبات الدفع</th><th>التاريخ</th><th>إجراءات</th></tr></thead>
+            <tbody>
+                {% for sub in subscriptions %}
+                <tr>
+                    <td>{{ sub.user.full_name }}<br><small class="text-muted">{{ sub.user.phone }}</small></td>
+                    <td>{{ sub.course.title }}</td>
+                    <td><span class="status-badge status-{{ sub.status }}">{{ sub.get_status_display_ar }}</span></td>
+                    <td>
+                        {% if sub.payment_proof %}
+                        <a href="{{ sub.payment_proof.proof_image.url }}" target="_blank" class="btn btn-sm btn-outline-primary">عرض</a>
+                        {% else %}-{% endif %}
+                    </td>
+                    <td>{{ sub.created_at|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        {% if sub.status == 'pending' %}
+                        <a href="{% url 'dashboard:subscription_approve' sub.pk %}" class="btn btn-sm btn-success">قبول</a>
+                        <a href="{% url 'dashboard:subscription_reject' sub.pk %}" class="btn btn-sm btn-danger">رفض</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center text-muted">لا توجد اشتراكات</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

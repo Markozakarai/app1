@@ -1,0 +1,34 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}الكورسات{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">إدارة الكورسات</h2>
+    <a href="{% url 'dashboard:course_create' %}" class="btn btn-primary"><i class="bi bi-plus"></i> إضافة كورس</a>
+</div>
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>الكورس</th><th>السعر</th><th>الدروس</th><th>الحالة</th><th>إجراءات</th></tr></thead>
+            <tbody>
+                {% for course in courses %}
+                <tr>
+                    <td>{{ course.title }}</td>
+                    <td>{{ course.price }} ج.م</td>
+                    <td>{{ course.lesson_count }}</td>
+                    <td>{% if course.is_published %}<span class="badge bg-success">منشور</span>{% else %}<span class="badge bg-secondary">مسودة</span>{% endif %}</td>
+                    <td>
+                        <a href="{% url 'dashboard:course_sections' course.pk %}" class="btn btn-sm btn-outline-primary">الدروس</a>
+                        <a href="{% url 'dashboard:course_edit' course.pk %}" class="btn btn-sm btn-outline-secondary">تعديل</a>
+                        <form method="post" action="{% url 'dashboard:course_delete' course.pk %}" class="d-inline" onsubmit="return confirm('حذف الكورس؟')">
+                            {% csrf_token %}<button class="btn btn-sm btn-outline-danger">حذف</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center text-muted">لا توجد كورسات</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

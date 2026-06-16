@@ -1,0 +1,31 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}الشهادات{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold mb-0">إدارة الشهادات</h2>
+    <a href="{% url 'dashboard:certificate_create' %}" class="btn btn-primary"><i class="bi bi-plus"></i> رفع شهادة</a>
+</div>
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>الطالب</th><th>الكورس</th><th>تاريخ الإكمال</th><th>المدرب</th><th>إجراءات</th></tr></thead>
+            <tbody>
+                {% for cert in certificates %}
+                <tr>
+                    <td>{{ cert.user.full_name }}</td>
+                    <td>{{ cert.course.title }}</td>
+                    <td>{{ cert.completion_date }}</td>
+                    <td>{{ cert.instructor_name }}</td>
+                    <td>
+                        <a href="{{ cert.file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">عرض</a>
+                        <a href="{% url 'dashboard:certificate_delete' cert.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('حذف؟')">حذف</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center text-muted">لا توجد شهادات</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

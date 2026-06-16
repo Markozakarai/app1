@@ -1,0 +1,43 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}الرئيسية{% endblock %}
+
+{% block content %}
+<h2 class="fw-bold mb-4">مرحباً {{ user.full_name }}</h2>
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card"><div class="text-muted">المستخدمون</div><div class="stat-number">{{ stats.users_count }}</div></div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card"><div class="text-muted">الكورسات</div><div class="stat-number">{{ stats.courses_count }}</div></div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card"><div class="text-muted">اشتراكات قيد المراجعة</div><div class="stat-number text-warning">{{ stats.pending_subscriptions }}</div></div>
+    </div>
+    <div class="col-md-6 col-lg-3">
+        <div class="stat-card"><div class="text-muted">رسائل التواصل غير المقروءة</div><div class="stat-number text-danger">{{ stats.contact_messages }}</div></div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="p-3 border-bottom"><h5 class="mb-0 fw-bold">آخر طلبات الاشتراك</h5></div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>الطالب</th><th>الكورس</th><th>الحالة</th><th>التاريخ</th><th></th></tr></thead>
+            <tbody>
+                {% for sub in recent_subscriptions %}
+                <tr>
+                    <td>{{ sub.user.full_name }}</td>
+                    <td>{{ sub.course.title }}</td>
+                    <td><span class="status-badge status-{{ sub.status }}">{{ sub.get_status_display_ar }}</span></td>
+                    <td>{{ sub.created_at|date:"d/m/Y" }}</td>
+                    <td><a href="{% url 'dashboard:subscriptions_list' %}" class="btn btn-sm btn-outline-primary">عرض</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center text-muted">لا توجد طلبات</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

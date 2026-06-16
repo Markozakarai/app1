@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}إنشاء حساب{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-card">
+        <h2 class="text-center fw-bold mb-4">إنشاء حساب جديد</h2>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="mb-3">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.errors %}<div class="text-danger small">{{ field.errors.0 }}</div>{% endif %}
+            </div>
+            {% endfor %}
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors.0 }}</div>
+            {% endif %}
+            <button type="submit" class="btn btn-primary w-100 mb-3">إنشاء الحساب</button>
+            <p class="text-center mb-0">لديك حساب؟ <a href="{% url 'accounts:login' %}">تسجيل الدخول</a></p>
+        </form>
+    </div>
+</div>
+{% endblock %}

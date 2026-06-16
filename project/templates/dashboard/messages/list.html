@@ -1,0 +1,24 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}المحادثات{% endblock %}
+{% block content %}
+<h2 class="fw-bold mb-4">إدارة المحادثات</h2>
+<div class="table-card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead><tr><th>الطالب</th><th>الموضوع</th><th>آخر تحديث</th><th>إجراء</th></tr></thead>
+            <tbody>
+                {% for conv in conversations %}
+                <tr>
+                    <td>{{ conv.user.full_name }}</td>
+                    <td>{{ conv.subject }}</td>
+                    <td>{{ conv.updated_at|date:"d/m/Y H:i" }}</td>
+                    <td><a href="{% url 'messaging:chat_detail' conv.pk %}" class="btn btn-sm btn-primary">فتح</a></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center text-muted">لا توجد محادثات</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

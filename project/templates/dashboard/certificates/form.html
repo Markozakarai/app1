@@ -1,0 +1,15 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h2 class="fw-bold mb-4">{{ title }}</h2>
+<div class="bg-white rounded-4 p-4 shadow">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="mb-3">{{ field.label_tag }}{{ field }}</div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">حفظ</button>
+        <a href="{% url 'dashboard:certificates_list' %}" class="btn btn-secondary">إلغاء</a>
+    </form>
+</div>
+{% endblock %}

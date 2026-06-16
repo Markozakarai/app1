@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}الملف الشخصي{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="bg-white rounded-4 p-4 shadow text-center">
+                {% if user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="avatar" class="profile-avatar mb-3">
+                {% else %}
+                <div class="profile-avatar mx-auto mb-3 d-flex align-items-center justify-content-center bg-primary text-white fs-1 fw-bold">
+                    {{ user.full_name|first }}
+                </div>
+                {% endif %}
+                <h4 class="fw-bold">{{ user.full_name }}</h4>
+                <p class="text-muted">{{ user.email }}</p>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="bg-white rounded-4 p-4 shadow mb-4">
+                <h4 class="fw-bold mb-4">تعديل البيانات</h4>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        <div class="col-md-6">{{ form.full_name.label_tag }}{{ form.full_name }}</div>
+                        <div class="col-md-6">{{ form.email.label_tag }}{{ form.email }}</div>
+                        <div class="col-md-6">{{ form.phone.label_tag }}{{ form.phone }}</div>
+                        <div class="col-md-6">
+                            <div class="form-label fw-bold mb-2">الصورة الشخصية</div>
+                            <div class="d-flex flex-column align-items-center gap-3">
+                                <div class="d-flex align-items-center justify-content-center" style="width:120px;height:120px;">
+                                    {% if user.profile.avatar %}
+                                        <img
+                                            id="avatarPreviewImg"
+                                            src="{{ user.profile.avatar.url }}"
+                                            class="profile-avatar mb-0"
+                                            alt="avatar"
+                                        >
+                                        <div id="avatarPreviewFallback" class="profile-avatar mx-auto bg-primary text-white d-flex align-items-center justify-content-center fs-1 fw-bold" style="display:none;">
+                                            {{ user.full_name|first }}
+                                        </div>
+                                    {% else %}
+                                        <img
+                                            id="avatarPreviewImg"
+                                            class="profile-avatar mb-0"
+                                            alt="avatar"
+                                            style="display:none;"
+                                        >
+                                        <div id="avatarPreviewFallback" class="profile-avatar mx-auto bg-primary text-white d-flex align-items-center justify-content-center fs-1 fw-bold">
+                                            {{ user.full_name|first }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <div class="w-100">
+                                    <label for="avatarInput" class="btn btn-outline-primary w-100">
+                                        <i class="bi bi-image me-2"></i> اختيار صورة
+                                    </label>
+                                </div>
+
+                                <div class="small text-muted text-center w-100">
+                                    لن يتم عرض الصورة بحجمها الكامل.
+                                </div>
+                            </div>
+                            {{ form.avatar }}
+                        </div>
+                        <div class="col-12"><button type="submit" class="btn btn-primary">حفظ التغييرات</button></div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="bg-white rounded-4 p-4 shadow mb-4">
+                <h4 class="fw-bold mb-4">الكورسات المشترك بها</h4>
+                {% if subscriptions %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead><tr><th>الكورس</th><th>الحالة</th><th>الإجراء</th></tr></thead>
+                        <tbody>
+                            {% for sub in subscriptions %}
+                            <tr>
+                                <td>{{ sub.course.title }}</td>
+                                <td><span class="status-badge status-{{ sub.status }}">{{ sub.get_status_display_ar }}</span></td>
+                                <td>
+                                    {% if sub.status == 'approved' %}
+                                    <a href="{% url 'courses:learn' sub.course.slug %}" class="btn btn-sm btn-primary">متابعة التعلم</a>
+                                    {% else %}
+                                    <a href="{% url 'courses:detail' sub.course.slug %}" class="btn btn-sm btn-outline-primary">التفاصيل</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted">لم تشترك في أي كورس بعد. <a href="{% url 'courses:list' %}">استكشف الكورسات</a></p>
+                {% endif %}
+            </div>
+
+            <div class="bg-white rounded-4 p-4 shadow">
+                <h4 class="fw-bold mb-4">الشهادات</h4>
+                {% if certificates %}
+                <div class="row g-3">
+                    {% for cert in certificates %}
+                    <div class="col-md-6">
+                        <div class="border rounded p-3">
+                            <h6 class="fw-bold">{{ cert.course.title }}</h6>
+                            <small class="text-muted">تاريخ الإكمال: {{ cert.completion_date }}</small><br>
+                            <small class="text-muted">المدرب: {{ cert.instructor_name }}</small>
+                            <div class="mt-2">
+                                <a href="{{ cert.file.url }}" class="btn btn-sm btn-accent" download><i class="bi bi-download"></i> تحميل الشهادة</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">لا توجد شهادات بعد.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const input = document.getElementById('avatarInput');
+        const previewImg = document.getElementById('avatarPreviewImg');
+        const fallback = document.getElementById('avatarPreviewFallback');
+        if (!input || !previewImg || !fallback) return;
+
+        input.addEventListener('change', function () {
+            const file = input.files && input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                previewImg.src = e.target.result;
+                previewImg.style.display = 'block';
+                fallback.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+</script>
+{% endblock %}

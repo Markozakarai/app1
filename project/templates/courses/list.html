@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}الكورسات{% endblock %}
+
+{% block content %}
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="section-title display-5">جميع الكورسات</h1>
+            <p class="section-subtitle">اختر الكورس المناسب لك وابدأ رحلة التعلم</p>
+        </div>
+        <div class="row g-4">
+            {% for course in courses %}
+            <div class="col-md-6 col-lg-4">
+                <div class="course-card card">
+                    {% if course.cover_image %}
+                    <img src="{{ course.cover_image.url }}" alt="{{ course.title }}">
+                    {% else %}
+                    <div class="bg-primary d-flex align-items-center justify-content-center" style="height:200px">
+                        <i class="bi bi-book text-white display-4"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">{{ course.title }}</h5>
+                        <p class="card-text text-muted small">{{ course.short_description|truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="course-price">{{ course.price }} ج.م</span>
+                            <span class="badge badge-lessons">{{ course.lesson_count }} درس</span>
+                        </div>
+                        <div class="text-muted small mb-3"><i class="bi bi-clock"></i> {{ course.duration }}</div>
+                       <a href="{% url 'courses:detail' course.slug %}" class="btn btn-primary w-100">عرض التفاصيل</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-book display-1 text-muted"></i>
+                <p class="text-muted mt-3">لا توجد كورسات متاحة حالياً.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

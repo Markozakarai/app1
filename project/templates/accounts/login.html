@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}تسجيل الدخول{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="auth-card">
+        <h2 class="text-center fw-bold mb-4">تسجيل الدخول</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+            </div>
+            <div class="mb-3">
+                {{ form.password.label_tag }}
+                {{ form.password }}
+            </div>
+            {% if form.errors %}
+            <div class="alert alert-danger">البريد الإلكتروني أو كلمة المرور غير صحيحة.</div>
+            {% endif %}
+            <button type="submit" class="btn btn-primary w-100 mb-3">دخول</button>
+            <p class="text-center mb-0">ليس لديك حساب؟ <a href="{% url 'accounts:register' %}">إنشاء حساب</a></p>
+        </form>
+    </div>
+</div>
+{% endblock %}

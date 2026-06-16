@@ -1,0 +1,56 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}دروس {{ course.title }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <a href="{% url 'dashboard:courses_list' %}" class="text-muted text-decoration-none"><i class="bi bi-arrow-right"></i> الكورسات</a>
+        <h2 class="fw-bold mb-0">{{ course.title }} - الدروس</h2>
+    </div>
+</div>
+
+<div class="bg-white rounded-4 p-4 shadow mb-4">
+    <h5 class="fw-bold mb-3">إضافة أسبوع جديد</h5>
+    <form method="post" action="{% url 'dashboard:section_create' course.pk %}">
+        {% csrf_token %}
+        <div class="row g-2 align-items-end">
+            <div class="col-md-6">{{ section_form.title.label_tag }}{{ section_form.title }}</div>
+            <div class="col-md-3">{{ section_form.order.label_tag }}{{ section_form.order }}</div>
+            <div class="col-md-3"><button type="submit" class="btn btn-primary w-100">إضافة أسبوع</button></div>
+        </div>
+    </form>
+</div>
+
+{% for section in sections %}
+<div class="bg-white rounded-4 shadow mb-4 overflow-hidden">
+    <div class="p-3 bg-primary text-white d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">{{ section.title }}</h5>
+        <div>
+            <a href="{% url 'dashboard:lesson_create' section.pk %}" class="btn btn-sm btn-light">+ درس</a>
+            <a href="{% url 'dashboard:section_delete' section.pk %}" class="btn btn-sm btn-outline-light" onclick="return confirm('حذف الأسبوع؟')">حذف</a>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table mb-0">
+            <thead><tr><th>الدرس</th><th>النوع</th><th>الترتيب</th><th>إجراءات</th></tr></thead>
+            <tbody>
+                {% for lesson in section.lessons.all %}
+                <tr>
+                    <td>{{ lesson.title }}</td>
+                    <td>{{ lesson.get_lesson_type_display }}</td>
+                    <td>{{ lesson.order }}</td>
+                    <td>
+                        <a href="{% url 'dashboard:lesson_edit' lesson.pk %}" class="btn btn-sm btn-outline-primary">تعديل</a>
+                        <a href="{% url 'dashboard:lesson_delete' lesson.pk %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('حذف؟')">حذف</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-muted text-center">لا توجد دروس</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% empty %}
+<p class="text-muted">أضف أسبوعاً أولاً ثم أضف الدروس.</p>
+{% endfor %}
+{% endblock %}

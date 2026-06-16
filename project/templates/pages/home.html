@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ماركو Academy - منصة تعليمية احترافية{% endblock %}
+
+{% block content %}
+<!-- Hero Banner -->
+<section class="hero-section">
+    <div class="container position-relative">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <h1 class="hero-title mb-4">تعلّم البرمجة والتطوير<br>مع <span class="text-warning">ماركو زكريا</span></h1>
+                <p class="hero-subtitle mb-4">منصة تعليمية متكاملة توفر لك كورسات احترافية، مشاريع عملية، ودعم مستمر حتى تحقق أهدافك المهنية.</p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'courses:list' %}" class="btn btn-accent btn-lg">استكشف الكورسات</a>
+                    <a href="{% url 'accounts:register' %}" class="btn btn-outline-light btn-lg">ابدأ مجاناً</a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-center">
+                <i class="bi bi-laptop display-1 text-warning opacity-75"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Platform -->
+<section class="py-5" id="about">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title display-6">نبذة عن المنصة</h2>
+            <p class="section-subtitle">منصة ماركو Academy هي وجهتك الأولى لتعلم البرمجة بطريقة عملية ومبسطة</p>
+        </div>
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <p class="lead">نقدم تجربة تعليمية فريدة تجمع بين النظرية والتطبيق العملي، مع متابعة شخصية من المدرب ومجتمع داعم من الطلاب.</p>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> كورسات منظمة على شكل أسابيع</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> مشاريع عملية حقيقية</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> شهادات معتمدة بعد الإكمال</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i> تواصل مباشر مع الإدارة</li>
+                </ul>
+            </div>
+            <div class="col-lg-6">
+                <div class="bg-white rounded-4 p-4 shadow">
+                    <div class="row text-center g-3">
+                        <div class="col-6">
+                            <div class="stat-number text-primary fw-bold display-6">+500</div>
+                            <div class="text-muted">طالب</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-number text-primary fw-bold display-6">+10</div>
+                            <div class="text-muted">كورس</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-number text-primary fw-bold display-6">+100</div>
+                            <div class="text-muted">درس</div>
+                        </div>
+                        <div class="col-6">
+                            <div class="stat-number text-primary fw-bold display-6">98%</div>
+                            <div class="text-muted">رضا الطلاب</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- About Instructor Preview -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-4 text-center">
+                <div class="instructor-avatar mx-auto d-flex align-items-center justify-content-center bg-primary text-white display-4 fw-bold">
+                    م.z
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <h2 class="section-title">marco zakaria</h2>
+                <p class="text-muted mb-3">مطور تطبيقات موبايل</p>
+                <p>مطور تطبيقات موبايل محترف مع خبرة تزيد عن 5 سنوات في تطوير تطبيقات iOS و Android.</p>
+                <a href="{% url 'pages:about_instructor' %}" class="btn btn-outline-primary">اعرف المزيد عن المدرب</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Latest Courses -->
+<section class="py-5" id="courses">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title display-6">أحدث الكورسات</h2>
+            <p class="section-subtitle">اكتشف كورساتنا التعليمية الاحترافية</p>
+        </div>
+        <div class="row g-4">
+            {% for course in latest_courses %}
+            <div class="col-md-6 col-lg-4">
+                <div class="course-card card">
+                    {% if course.cover_image %}
+                    <img src="{{ course.cover_image.url }}" alt="{{ course.title }}">
+                    {% else %}
+                    <div class="bg-primary d-flex align-items-center justify-content-center" style="height:200px">
+                        <i class="bi bi-book text-white display-4"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">{{ course.title }}</h5>
+                        <p class="card-text text-muted small">{{ course.short_description|truncatewords:15 }}</p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="course-price">{{ course.price }} ج.م</span>
+                            <span class="badge badge-lessons">{{ course.lesson_count }} درس</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted small mb-3">
+                            <span><i class="bi bi-clock"></i> {{ course.duration }}</span>
+                        </div>
+                        <a href="{% url 'courses:detail' course.slug %}" class="btn btn-primary w-100">عرض التفاصيل</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center text-muted">
+                <p>لا توجد كورسات حالياً. ترقبوا قريباً!</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% if latest_courses %}
+        <div class="text-center mt-4">
+            <a href="{% url 'courses:list' %}" class="btn btn-outline-primary btn-lg">عرض جميع الكورسات</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Features -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title display-6">مميزات المنصة</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3 text-center">
+                <div class="feature-icon mx-auto"><i class="bi bi-play-circle"></i></div>
+                <h5 class="fw-bold">دروس فيديو</h5>
+                <p class="text-muted">محتوى فيديو عالي الجودة مع شرح مفصل</p>
+            </div>
+            <div class="col-md-6 col-lg-3 text-center">
+                <div class="feature-icon mx-auto"><i class="bi bi-file-earmark-pdf"></i></div>
+                <h5 class="fw-bold">ملفات PDF</h5>
+                <p class="text-muted">ملخصات ومراجع قابلة للتحميل</p>
+            </div>
+            <div class="col-md-6 col-lg-3 text-center">
+                <div class="feature-icon mx-auto"><i class="bi bi-headset"></i></div>
+                <h5 class="fw-bold">دعم سريع</h5>
+                <p class="text-muted">تواصل مع الإدارة عبر نموذج التواصل</p>
+            </div>
+            <div class="col-md-6 col-lg-3 text-center">
+                <div class="feature-icon mx-auto"><i class="bi bi-award"></i></div>
+                <h5 class="fw-bold">شهادات</h5>
+                <p class="text-muted">شهادة إتمام بعد إنهاء الكورس</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials -->
+<section class="py-5" id="testimonials">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="section-title display-6">آراء الطلاب</h2>
+        </div>
+        <div class="row g-4">
+            {% for testimonial in testimonials %}
+            <div class="col-md-6 col-lg-4">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars mb-2">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= testimonial.rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}
+                        {% endfor %}
+                    </div>
+                    <p class="mb-3">"{{ testimonial.content }}"</p>
+                    <div class="fw-bold">{{ testimonial.student_name }}</div>
+                    {% if testimonial.student_title %}<small class="text-muted">{{ testimonial.student_title }}</small>{% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center text-muted">لا توجد آراء بعد.</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Contact -->
+<section class="py-5 bg-white" id="contact">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-5">
+                <h2 class="section-title display-6">تواصل معنا</h2>
+                <p class="text-muted mb-4">لديك سؤال؟ نحن هنا للمساعدة. أرسل لنا رسالة وسنرد عليك في أقرب وقت.</p>
+                <div class="mb-3"><i class="bi bi-whatsapp text-success me-2"></i> +20 100 000 0000</div>
+                <div class="mb-3"><i class="bi bi-envelope text-primary me-2"></i> info@marcoacademy.com</div>
+            </div>
+            <div class="col-lg-7">
+                <div class="bg-light rounded-4 p-4">
+                    <form method="post" action="{% url 'messaging:contact' %}">
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">{{ contact_form.name.label_tag }}{{ contact_form.name }}</div>
+                            <div class="col-md-6">{{ contact_form.email.label_tag }}{{ contact_form.email }}</div>
+                            <div class="col-md-6">{{ contact_form.phone.label_tag }}{{ contact_form.phone }}</div>
+                            <div class="col-md-6">{{ contact_form.subject.label_tag }}{{ contact_form.subject }}</div>
+                            <div class="col-12">{{ contact_form.message.label_tag }}{{ contact_form.message }}</div>
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">إرسال الرسالة</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

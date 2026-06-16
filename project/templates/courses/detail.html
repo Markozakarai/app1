@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-8">
+                {% if course.cover_image %}
+                <img src="{{ course.cover_image.url }}" alt="{{ course.title }}" class="w-100 rounded-4 shadow mb-4" style="max-height:400px;object-fit:cover">
+                {% endif %}
+                <h1 class="fw-bold mb-3">{{ course.title }}</h1>
+                <div class="d-flex flex-wrap gap-3 mb-4 text-muted">
+                    <span><i class="bi bi-clock"></i> {{ course.duration }}</span>
+                    <span><i class="bi bi-collection-play"></i> {{ course.lesson_count }} درس</span>
+                    <span class="course-price fs-5">{{ course.price }} ج.م</span>
+                </div>
+                <h4 class="fw-bold mb-3">وصف الكورس</h4>
+                <p class="lead">{{ course.full_description|linebreaks }}</p>
+
+                {% if course.get_skills_list %}
+                <h4 class="fw-bold mt-4 mb-3">المهارات التي ستتعلمها</h4>
+                <div class="mb-4">
+                    {% for skill in course.get_skills_list %}
+                    <span class="skill-tag">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                {% if course.get_projects_list %}
+                <h4 class="fw-bold mt-4 mb-3">المشاريع</h4>
+                <ul>
+                    {% for project in course.get_projects_list %}
+                    <li>{{ project }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            <div class="col-lg-4">
+                <div class="bg-white rounded-4 p-4 shadow sticky-top" style="top:100px">
+                    <div class="text-center mb-4">
+                        <div class="course-price fs-2">{{ course.price }} ج.م</div>
+                    </div>
+                    {% if subscription %}
+                        {% if subscription.status == 'approved' %}
+                        <a href="{% url 'courses:learn' course.slug %}" class="btn btn-primary w-100 btn-lg mb-2">متابعة التعلم</a>
+                        {% elif subscription.status == 'pending' %}
+                        <div class="alert alert-warning text-center">طلبك قيد المراجعة</div>
+                        {% else %}
+                        <a href="{% url 'courses:subscribe' course.slug %}" class="btn btn-accent w-100 btn-lg">إعادة الاشتراك</a>
+                        {% endif %}
+                    {% else %}
+                        {% if user.is_authenticated %}
+                        <button type="button" class="btn btn-accent w-100 btn-lg" data-bs-toggle="modal" data-bs-target="#subscribeModal">اشترك الآن</button>
+                        {% else %}
+                        <a href="{% url 'accounts:login' %}?next={% url 'courses:detail' course.slug %}" class="btn btn-accent w-100 btn-lg">سجّل دخول للاشتراك</a>
+                        {% endif %}
+                    {% endif %}
+                    <hr>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="bi bi-check text-success"></i> {{ course.lesson_count }} درس</li>
+                        <li class="mb-2"><i class="bi bi-check text-success"></i> ملفات PDF</li>
+                        <li class="mb-2"><i class="bi bi-check text-success"></i> دعم مباشر</li>
+                        <li class="mb-2"><i class="bi bi-check text-success"></i> شهادة إتمام</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% if user.is_authenticated %}
+    {% if not subscription or subscription.status == 'rejected' %}
+<div class="modal fade" id="subscribeModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">طلب اشتراك - {{ course.title }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" action="{% url 'courses:subscribe' course.slug %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">الاسم</label>
+                        <input type="text" name="full_name" class="form-control" value="{{ user.full_name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">رقم الهاتف</label>
+                        <input type="text" name="phone" class="form-control" value="{{ user.phone }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">صورة إثبات الدفع</label>
+                        <input type="file" name="proof_image" class="form-control" accept="image/*" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ملاحظات (اختياري)</label>
+                        <textarea name="notes" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                    <button type="submit" class="btn btn-primary">إرسال طلب الاشتراك</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+    {% endif %}
+{% endif %}
+{% endblock %}
